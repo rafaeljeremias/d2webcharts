@@ -5,14 +5,16 @@ interface
 uses
   uModel.Charts.Interfaces;
 
-function ColorEnumToString(AColor: TChartColor; AOpacity: Double = 1.0): string;
+  function ColorEnumToStringHtml(AColor: EnumColors): string;
+  function ChartTypeToString(AChartType: EnumChartType): string;
+function ColorEnumToString(AColor: EnumColors; AOpacity: Double = 1.0): string;
 
 implementation
 
 uses
   System.SysUtils;
 
-function ColorEnumToString(AColor: TChartColor; AOpacity: Double = 1.0): string;
+function ColorEnumToString(AColor: EnumColors; AOpacity: Double = 1.0): string;
 begin
   case AColor of
     none:         Result  := 'rgba(222, 226, 230, ' + StringReplace(FloatToStr(AOpacity), ',', '.', [rfReplaceAll]) + ')';
@@ -47,6 +49,59 @@ begin
     danger:       Result  := 'rgba(220, 53, 69, '   + StringReplace(FloatToStr(AOpacity), ',', '.', [rfReplaceAll]) + ')';
     light:        Result  := 'rgba(248, 249, 250, ' + StringReplace(FloatToStr(AOpacity), ',', '.', [rfReplaceAll]) + ')';
     dark:         Result  := 'rgba(33, 37, 41, '    + StringReplace(FloatToStr(AOpacity), ',', '.', [rfReplaceAll]) + ')';
+    transparent:  Result  := 'transparent';
+  end;
+end;
+
+function ChartTypeToString(AChartType: EnumChartType): string;
+begin
+  result := '';
+
+  case AChartType of
+    ctColumn: result := 'column';
+    ctArea: result := 'area';
+    ctLinha: result := 'line';
+    ctPizza: result := 'pie';
+    ctDonut: result := 'donut';
+  end;
+end;
+
+function ColorEnumToStringHtml(AColor: EnumColors): string;
+begin
+  result := '';
+
+  case AColor of
+    blue:         Result  := 'blue';
+    indigo:       Result  := 'indigo';
+    purple:       Result  := 'purple';
+    pink:         Result  := 'pink';
+    red:          Result  := 'red';
+    orange:       Result  := 'orange';
+    yellow:       Result  := 'yellow';
+    green:        Result  := 'green';
+    teal:         Result  := 'teal';
+    cyan:         Result  := 'cyan';
+    black:        Result  := 'black';
+    white:        Result  := 'white';
+    gray:         Result  := 'gray';
+    graydark:     Result  := 'graydark';
+    gray100:      Result  := 'gray100';
+    gray200:      Result  := 'gray200';
+    gray300:      Result  := 'gray300';
+    gray400:      Result  := 'gray400';
+    gray500:      Result  := 'gray500';
+    gray600:      Result  := 'gray600';
+    gray700:      Result  := 'gray700';
+    gray800:      Result  := 'gray800';
+    gray900:      Result  := 'gray900';
+    primary:      Result  := 'primary';
+    secondary:    Result  := 'secondary';
+    success:      Result  := 'success';
+    info:         Result  := 'info';
+    warning:      Result  := 'warning';
+    danger:       Result  := 'danger';
+    light:        Result  := 'light';
+    dark:         Result  := 'dark';
     transparent:  Result  := 'transparent';
   end;
 end;

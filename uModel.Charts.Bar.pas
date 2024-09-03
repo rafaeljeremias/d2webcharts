@@ -11,7 +11,6 @@ uses
 type
   TModelChartBar = class(TInterfacedObject, iModelChart)
   private
-    FChartID: string;
     FChartDataSets: TInterfaceList;
     FHeight: string;
     FWidth: string;
@@ -20,15 +19,13 @@ type
     constructor Create;
     destructor Destroy; override;
     class function New: iModelChart;
-    function AddChartDataSet(ALabel: string): iModelChartDataSet;
-    function DataSets(Index: Integer): iModelChartDataSet;
+    function AddChartDataSet(ALabel: string; AyAxis: iModelChartDataAxis = nil): iModelChartDataSet;
     function LabelName: string; overload;
     function LabelName(AValue: string): iModelChart; overload;
     function ClearDataSets: iModelChart;
     function Height(AValue: string): iModelChart;
     function Width(AValue: string): iModelChart;
     function Generate: string;
-    function Update: string;
   end;
 
 implementation
@@ -51,14 +48,8 @@ constructor TModelChartBar.Create;
 begin
   inherited Create;
   FChartDataSets := TInterfaceList.Create;
-  FChartID := 'chartjs-bar' + IntToStr(Random(MaxInt));
   FHeight := '150px';
   FWidth  := '400px';
-end;
-
-function TModelChartBar.DataSets(Index: Integer): iModelChartDataSet;
-begin
-  result := FChartDataSets.Items[Index] as iModelChartDataSet;
 end;
 
 destructor TModelChartBar.Destroy;
@@ -67,9 +58,10 @@ begin
   inherited Destroy;
 end;
 
-function TModelChartBar.AddChartDataSet(ALabel: string): iModelChartDataSet;
+function TModelChartBar.AddChartDataSet(ALabel: string;
+  AyAxis: iModelChartDataAxis): iModelChartDataSet;
 begin
-  Result := TModelChartDataSet.New(Self, ALabel);
+  Result := TModelChartDataSet.New(Self, ALabel, cfChartJS, AyAxis);
   FChartDataSets.Add(Result);
 end;
 
@@ -101,32 +93,16 @@ begin
   Result := Self.Create;
 end;
 
-function TModelChartBar.Update: string;
-begin
-  var LDataSetUpdateStr := '';
-  for var i := 0 to FChartDataSets.Count - 1 do
-  begin
-    var LDatasetsStr := (FChartDataSets[i] as iModelChartDataSet).ArrayValues;
-    LDataSetUpdateStr := LDataSetUpdateStr + Format('chart.data.datasets[%d].data = %s;', [i, LDatasetsStr]);
-  end;
-
-  Result :=
-    'var chart = Chart.getChart("'+ FChartID +'");' +
-    'if (chart) {' +
-    ' ' + LDataSetUpdateStr + ' ' +
-    '  chart.update();' +
-    '}';
-end;
-
 function TModelChartBar.Generate: string;
 var
-  LLabelsStr, LDatasetsStr: string;
+  LLabelsStr, LChartID, LDatasetsStr: string;
   LChartDataSet: iModelChartDataSet;
 begin
   LLabelsStr    := EmptyStr;
   LDatasetsStr  := EmptyStr;
+  LChartID      := EmptyStr;
   LLabelsStr    := (FChartDataSets[0] as iModelChartDataSet).GenerateLabels;
-
+  LChartID      := IntToStr(Random(MaxInt));
   for var i := 0 to Pred(FChartDataSets.Count) do
   begin
     LChartDataSet := (FChartDataSets[i] as iModelChartDataSet);
@@ -135,11 +111,11 @@ begin
     LDatasetsStr  := LDatasetsStr + LChartDataSet.Generate;
   end;
 
-Result := Format(
-    '<canvas id="' + FChartID + '" width="%s" height="%s"></canvas>' +
+  Result := Format(
+    '<canvas id="chartjs-bar'+ LChartID +'" width="%s" height="%s"></canvas>' +
     '<script>' +
     'document.addEventListener("DOMContentLoaded", () => {' +
-    '  new Chart(document.getElementById("'+ FChartID +'"), {' +
+    '  new Chart(document.getElementById("chartjs-bar' + LChartID + '"), {' +
     '    type: "bar",' +
     '    data: {' +
     '      labels: [%s],' +
@@ -147,20 +123,24 @@ Result := Format(
     '    },' +
     '    options: {' +
     '      scales: {' +
-    '        x: {' +
-    '          grid: {' +
-    '            offset: true' +
+    '        xAxes: [{' +
+    '          reverse: true,' +
+    '          gridLines: {' +
+    '            color: "rgba(0,0,0,0.05)"' +
     '          }' +
-    '        },' +
-    '        y: {' +
-    '          beginAtZero: true' +
-    '        }' +
+    '        }],' +
+    '        yAxes: [{' +
+    '          borderDash: [5, 5],' +
+    '          gridLines: {' +
+    '            color: "rgba(0,0,0,0)",' +
+    '            fontColor: "#fff"' +
+    '          }' +
+    '        }]' +
     '      }' +
     '    }' +
     '  });' +
     '});' +
     '</script>', [FWidth, FHeight, LLabelsStr, LDatasetsStr]);
-
 end;
 
 end.

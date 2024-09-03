@@ -13,6 +13,7 @@ type
     constructor Create;
     destructor Destroy; override;
     class function New: iModelChartFactory ;
+
     function Bar: iModelChart;
     function Line: iModelChart;
     function Pie: iModelChart;

@@ -6,6 +6,7 @@ uses
   System.Generics.Collections,
   System.Variants,
   uModel.Charts.Interfaces,
+  System.StrUtils,
   System.Classes;
 
 type
@@ -13,28 +14,34 @@ type
   private
     [weak]
     FParent: iModelChart;
+    FyAxis: iModelChartDataAxis;
+    FChartFramework: EnumChartFramework;
     FChartDataList: TInterfaceList;
     FOpacity: Double;
     FLabel: string;
-    function GenerateBackgroundColors: string;
     function GenerateBorderColors: string;
     function GenerateValue: string;
-    function GeneratePointBackgroundColor: string;
+    function GenerateFrameworkChartJS: string;
+    function GenerateFrameworkChartApex: string;
   public
-    constructor Create(AParent: iModelChart; ALabel: string);
-    class function New(AParent: iModelChart; ALabel: string): iModelChartDataSet;
+    constructor Create(AParent: iModelChart; ALabel: string; AChartFramework: EnumChartFramework; AyAxis: iModelChartDataAxis = nil);
+    class function New(AParent: iModelChart; ALabel: string; AChartFramework: EnumChartFramework = cfChartJS; AyAxis: iModelChartDataAxis = nil): iModelChartDataSet;
     destructor Destroy; override;
+    function GenerateAxisY: string;
     function GenerateLabels: string;
-    function AddChartData(ALabel: string; AValue: Variant; ABackgroundColor, ABorderColor: TChartColor; APointBackgroundColor: TChartColor = None; APointBorderColor: TChartColor = None; APointHoverBackgroundColor: TChartColor = None; APointHoverBorderColor: TChartColor = None): iModelChartDataSet;
-    function Data(Index: Integer): iModelChartData;
+    function GenerateToolTipY: string;
+    function GeneratePointColor: string;
+    function GenerateBackgroundColors: string;
+    function GeneratePointBackgroundColor: string;
+    function AddChartData(ALabel: string; AValue: Variant; APointBackgroundColor: EnumColors = none): iModelChartDataSet; overload;
+    function AddChartData(ALabel: string; AValue: Variant; AChartType: EnumChartType; APointBackgroundColor: EnumColors = none; APointColor: EnumColors = none): iModelChartDataSet; overload;
+    function AddChartData(ALabel: string; AValue: Variant; ABackgroundColor, ABorderColor: EnumColors; APointBackgroundColor: EnumColors = None; APointBorderColor: EnumColors = None; APointHoverBackgroundColor: EnumColors = None; APointHoverBorderColor: EnumColors = None): iModelChartDataSet; overload;
     function LabelName: string; overload;
     function LabelName(AValue: string): iModelChartDataSet; overload;
     function Opacity(AValue: Double): iModelChartDataSet; overload;
     function Generate: string;
-    function ArrayValues: string;
     function Opacity: Double; overload;
     function RecordCount: integer;
-    function ClearData: iModelChartDataSet;
     function &End: iModelChart;
   end;
 
@@ -47,29 +54,51 @@ uses
 
 { TModelChartDataSet }
 
-function TModelChartDataSet.ArrayValues: string;
+function TModelChartDataSet.AddChartData(ALabel: string;
+  AValue: Variant; APointBackgroundColor: EnumColors): iModelChartDataSet;
 begin
-  Result := '[' + Self.GenerateValue + ']';
+  Result := Self;
+  var ChartData := TModelChartData.New(ALabel,
+                     AValue,
+                     none,
+                     none,
+                     APointBackgroundColor,
+                     none,
+                     none,
+                     none);
+
+  FChartDataList.Add(ChartData);
 end;
 
-function TModelChartDataSet.ClearData: iModelChartDataSet;
+function TModelChartDataSet.AddChartData(ALabel: string; AValue: Variant;
+  AChartType: EnumChartType;
+  APointBackgroundColor, APointColor: EnumColors): iModelChartDataSet;
 begin
-  result := self;
-  FChartDataList.Clear;
+  Result := Self;
+  var ChartData := TModelChartData.New(ALabel,
+                     AValue,
+                     none,
+                     none,
+                     APointBackgroundColor,
+                     none,
+                     none,
+                     none,
+                     AChartType,
+                     APointColor);
+
+  FChartDataList.Add(ChartData);
 end;
 
-constructor TModelChartDataSet.Create(AParent: iModelChart; ALabel: string);
+constructor TModelChartDataSet.Create(AParent: iModelChart; ALabel: string;
+  AChartFramework: EnumChartFramework; AyAxis: iModelChartDataAxis);
 begin
   FParent := AParent;
   FChartDataList := TInterfaceList.Create;
   FLabel := ALabel;
   FOpacity := 1;
-end;
-
-function TModelChartDataSet.Data(Index: Integer): iModelChartData;
-begin
-  result := FChartDataList.Items[Index] as iModelChartData;
-end;
+  FChartFramework := AChartFramework;
+  FyAxis := AyAxis;
+End;
 
 destructor TModelChartDataSet.Destroy;
 begin
@@ -82,10 +111,13 @@ begin
   result := FParent;
 end;
 
-function TModelChartDataSet.AddChartData(ALabel: string; AValue: Variant; ABackgroundColor, ABorderColor: TChartColor; APointBackgroundColor: TChartColor = None; APointBorderColor: TChartColor = None; APointHoverBackgroundColor: TChartColor = None; APointHoverBorderColor: TChartColor = None): iModelChartDataSet;
+function TModelChartDataSet.AddChartData(ALabel: string; AValue: Variant;
+  ABackgroundColor, ABorderColor: EnumColors; APointBackgroundColor: EnumColors = None;
+  APointBorderColor: EnumColors = None; APointHoverBackgroundColor: EnumColors = None;
+  APointHoverBorderColor: EnumColors = None): iModelChartDataSet;
 begin
   Result := Self;
-  var ChartData := TModelChartData.New(Self, ALabel, AValue, ABackgroundColor, ABorderColor, APointBackgroundColor, APointBorderColor, APointHoverBackgroundColor, APointHoverBorderColor);
+  var ChartData := TModelChartData.New(ALabel, AValue, ABackgroundColor, ABorderColor, APointBackgroundColor, APointBorderColor, APointHoverBackgroundColor, APointHoverBorderColor);
   FChartDataList.Add(ChartData);
 end;
 
@@ -126,9 +158,10 @@ begin
   Result := FLabel;
 end;
 
-class function TModelChartDataSet.New(AParent: iModelChart; ALabel: string): iModelChartDataSet;
+class function TModelChartDataSet.New(AParent: iModelChart;
+  ALabel: string; AChartFramework: EnumChartFramework; AyAxis: iModelChartDataAxis): iModelChartDataSet;
 begin
-  Result := self.Create(AParent, Alabel);
+  Result := self.Create(AParent, Alabel, AChartFramework, AyAxis);
 end;
 
 function TModelChartDataSet.Opacity: Double;
@@ -165,10 +198,42 @@ begin
   var BackgroundColorStr := EmptyStr;
   if FChartDataList.Count > 0 then
   begin
-    var ChartData := FChartDataList[0] as iModelChartData;  
+    var ChartData := FChartDataList[0] as iModelChartData;
     BackgroundColorStr := '"' + ColorEnumToString(ChartData.PointBackgroundColor, FOpacity) + '"';
   end;
   Result := BackgroundColorStr;
+end;
+
+function TModelChartDataSet.GeneratePointColor: string;
+begin
+  var PointColorStr := EmptyStr;
+
+  if FChartDataList.Count > 0 then
+  begin
+    var ChartData := FChartDataList[0] as iModelChartData;
+    PointColorStr := '"' + ColorEnumToStringHtml(ChartData.PointColor) + '"';
+  end;
+  Result := PointColorStr;
+end;
+
+function TModelChartDataSet.GenerateToolTipY: string;
+begin
+  var DataStr := EmptyStr;
+
+  if FyAxis <> nil then
+  begin
+    DataStr := Format('{ '+
+                      '  formatter: function (y) { '+
+                      '    if (typeof y !== "undefined") { '+
+                      '      return y.toFixed(0) + "%s"; '+
+                      '    } '+
+                      '    return y; '+
+                      '  } '+
+                      '} ',
+                      [FyAxis.SufixoLabel]);
+  end;
+
+  result := DataStr;
 end;
 
 function TModelChartDataSet.GenerateBorderColors: string;
@@ -184,27 +249,46 @@ begin
   Result := ColorsStr;
 end;
 
-function TModelChartDataSet.Generate: string;
+function TModelChartDataSet.GenerateFrameworkChartApex: string;
+var
+  LChartType: EnumChartType;
+begin
+  var ChartData := FChartDataList[0] as iModelChartData;
+
+  if (ChartData.ChartType = ctPizza) or (ChartData.ChartType = ctDonut) or
+    (ChartData.ChartType = ctRadialBar) then
+  begin
+    result := GenerateValue;
+  end
+  else
+  begin
+    result := Format('{ data: ['+ GenerateValue +'], name: "%s"%s }',
+                     [FLabel,
+                      ifThen(ChartData.ChartType = ctNone, '', ', type: "'+ ChartTypeToString(ChartData.ChartType) +'"')]);
+  end;
+end;
+
+function TModelChartDataSet.GenerateFrameworkChartJS: string;
 var
   LPointBackgroundColorStr, LPointBorderColorStr, LPointHoverBackgroundColorStr, LPointHoverBorderColorStr: string;
 begin
   var LPointBackgroundColor := (FChartDataList[0] as iModelChartData).PointBackgroundColor;
-  if LPointBackgroundColor <> Default(TChartColor) then
+  if LPointBackgroundColor <> Default(EnumColors) then
       LPointBackgroundColorStr := Format('pointBackgroundColor: "%s",', [ColorEnumToString(LPointBackgroundColor, FOpacity)])
   else LPointBackgroundColorStr := '';
 
   var LPointBorderColor := (FChartDataList[0] as iModelChartData).PointBackgroundColor;
-  if LPointBorderColor <> Default(TChartColor) then
+  if LPointBorderColor <> Default(EnumColors) then
       LPointBorderColorStr := Format('pointBorderColor: "%s",', [ColorEnumToString(LPointBorderColor, FOpacity)])
   else LPointBorderColorStr := '';
 
   var LPointHoverBackgroundColor := (FChartDataList[0] as iModelChartData).PointBackgroundColor;
-  if LPointHoverBackgroundColor <> Default(TChartColor) then
+  if LPointHoverBackgroundColor <> Default(EnumColors) then
       LPointHoverBackgroundColorStr := Format('pointHoverBackgroundColor: "%s",', [ColorEnumToString(LPointHoverBackgroundColor, FOpacity)])
   else LPointHoverBackgroundColorStr := '';
 
   var LPointHoverBorderColor := (FChartDataList[0] as iModelChartData).PointBackgroundColor;
-  if LPointHoverBorderColor <> Default(TChartColor) then
+  if LPointHoverBorderColor <> Default(EnumColors) then
       LPointHoverBorderColorStr := Format('pointHoverBorderColor: "%s",', [ColorEnumToString(LPointHoverBorderColor, FOpacity)])
   else LPointHoverBorderColorStr := '';
 
@@ -222,6 +306,49 @@ begin
     '}', [self.LabelName, self.GenerateBackgroundColors, self.GenerateBorderColors,
           LPointBackgroundColorStr, LPointBorderColorStr, LPointHoverBackgroundColorStr,
           LPointHoverBorderColorStr, Self.GenerateValue]);
+end;
+
+function TModelChartDataSet.Generate: string;
+begin
+  if FChartFramework = cfChartJS then
+    result := GenerateFrameworkChartJS
+  else
+    result := GenerateFrameworkChartApex;
+end;
+
+function TModelChartDataSet.GenerateAxisY: string;
+begin
+  var DataStr := EmptyStr;
+
+  if FyAxis <> nil then
+  begin
+    DataStr := Format('{ '+
+                      '  show: %s, '+
+                      '  opposite: %s, '+
+                      '  title: { '+
+                      '    text: "%s" '+
+                      '  }, '+
+                      '  labels: { '+
+                      '    show: %s, '+
+                      '    formatter: function (value) { '+
+                      '      return value + "%s"; '+
+                      '    } '+
+                      '  }, '+
+                      '  min: %d, '+
+                      '  max: %d, '+
+                      '  tickAmount: %d '+
+                      '}',
+                      [ifThen(FyAxis.Visible, 'true', 'false'),
+                       ifThen(FyAxis.Opposite, 'true', 'false'),
+                       FyAxis.Title,
+                       ifThen(FyAxis.Visible, 'true', 'false'),
+                       FyAxis.SufixoLabel,
+                       FyAxis.MinValueAxis,
+                       FyAxis.MaxValueAxis,
+                       FyAxis.TickAmount]);
+  end;
+
+  Result := DataStr;
 end;
 
 end.

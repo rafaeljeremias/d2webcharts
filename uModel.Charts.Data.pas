@@ -8,81 +8,97 @@ uses
 type
   TModelChartData = class(TInterfacedObject, iModelChartData)
   private
-    [weak]
-    FParent: iModelChartDataSet;
     FLabelName: string;
     FValue: Variant;
-    FBackgroundColor: TChartColor;
-    FBorderColor: TChartColor;
-    FPointBackgroundColor: TChartColor;
-    FPointBorderColor: TChartColor;
-    FPointHoverBackgroundColor: TChartColor;
-    FPointHoverBorderColor: TChartColor;
+    FBorderColor: EnumColors;
+    FChartType: EnumChartType;
+    FBackgroundColor: EnumColors;
+    FPointColor: EnumColors;
+    FPointBorderColor: EnumColors;
+    FPointBackgroundColor: EnumColors;
+    FPointHoverBorderColor: EnumColors;
+    FPointHoverBackgroundColor: EnumColors;
   public
-    constructor Create(AParent: iModelChartDataSet; const ALabel: string; AValue: Variant; ABackgroundColor, ABorderColor, APointBackgroundColor, APointBorderColor, APointHoverBackgroundColor, APointHoverBorderColor: TChartColor);
-    class function New(AParent: iModelChartDataSet; const ALabel: string; AValue: Variant; ABackgroundColor, ABorderColor, APointBackgroundColor, APointBorderColor, APointHoverBackgroundColor, APointHoverBorderColor: TChartColor): iModelChartData;
+    constructor Create(const ALabel: string; AValue: Variant; ABackgroundColor, ABorderColor, APointBackgroundColor, APointBorderColor, APointHoverBackgroundColor, APointHoverBorderColor: EnumColors;
+      AChartType: EnumChartType = ctNone; APointColor: EnumColors = none);
+    class function New(const ALabel: string; AValue: Variant; ABackgroundColor, ABorderColor, APointBackgroundColor, APointBorderColor, APointHoverBackgroundColor, APointHoverBorderColor: EnumColors;
+      AChartType: EnumChartType = ctNone; APointColor: EnumColors = none): iModelChartData;
     destructor Destroy; override;
     function LabelName(AValue: string): iModelChartData; overload;
     function Value(AValue: Variant): iModelChartData; overload;
-    function BackgroundColor(AValue: TChartColor): iModelChartData; overload;
-    function BorderColor(AValue: TChartColor): iModelChartData; overload;
-    function PointBackgroundColor(AValue: TChartColor): iModelChartData; overload;
-    function PointBorderColor(AValue: TChartColor): iModelChartData; overload;
-    function PointHoverBackgroundColor(AValue: TChartColor): iModelChartData; overload;
-    function PointHoverBorderColor(AValue: TChartColor): iModelChartData; overload;
+    function ChartType(AValue: EnumChartType): iModelChartData; overload;
+    function BackgroundColor(AValue: EnumColors): iModelChartData; overload;
+    function BorderColor(AValue: EnumColors): iModelChartData; overload;
+    function PointColor(AValue: EnumColors): iModelChartData; overload;
+    function PointBackgroundColor(AValue: EnumColors): iModelChartData; overload;
+    function PointBorderColor(AValue: EnumColors): iModelChartData; overload;
+    function PointHoverBackgroundColor(AValue: EnumColors): iModelChartData; overload;
+    function PointHoverBorderColor(AValue: EnumColors): iModelChartData; overload;
     function LabelName: string; overload;
     function Value: Variant; overload;
-    function BackgroundColor: TChartColor; overload;
-    function BorderColor: TChartColor; overload;
-    function PointBackgroundColor: TChartColor; overload;
-    function PointBorderColor: TChartColor; overload;
-    function PointHoverBackgroundColor: TChartColor; overload;
-    function PointHoverBorderColor: TChartColor; overload;
-    function &End: iModelChartDataSet;
+    function ChartType: EnumChartType; overload;
+    function PointColor: EnumColors; overload;
+    function BackgroundColor: EnumColors; overload;
+    function BorderColor: EnumColors; overload;
+    function PointBackgroundColor: EnumColors; overload;
+    function PointBorderColor: EnumColors; overload;
+    function PointHoverBackgroundColor: EnumColors; overload;
+    function PointHoverBorderColor: EnumColors; overload;
   end;
 
 implementation
 
 { TChartData }
 
-function TModelChartData.BorderColor: TChartColor;
+function TModelChartData.BorderColor: EnumColors;
 begin
   result := FBorderColor;
 end;
 
-function TModelChartData.BorderColor(AValue: TChartColor): iModelChartData;
+function TModelChartData.BorderColor(AValue: EnumColors): iModelChartData;
 begin
   result := Self;
   FBorderColor := AValue;
 end;
 
-function TModelChartData.BackgroundColor(AValue: TChartColor): iModelChartData;
+function TModelChartData.BackgroundColor(AValue: EnumColors): iModelChartData;
 begin
   result := Self;
   FBackgroundColor := AValue;
 end;
 
-function TModelChartData.&End: iModelChartDataSet;
-begin
-  Result := FParent;
-end;
-
-function TModelChartData.BackgroundColor: TChartColor;
+function TModelChartData.BackgroundColor: EnumColors;
 begin
   Result := FBackgroundColor;
 end;
 
-constructor TModelChartData.Create(AParent: iModelChartDataSet; const ALabel: string; AValue: Variant; ABackgroundColor, ABorderColor, APointBackgroundColor, APointBorderColor, APointHoverBackgroundColor, APointHoverBorderColor: TChartColor);
+function TModelChartData.ChartType(AValue: EnumChartType): iModelChartData;
 begin
-  FParent                     := AParent;
+  result := Self;
+
+  FChartType := AValue;
+end;
+
+function TModelChartData.ChartType: EnumChartType;
+begin
+  result := FChartType;
+end;
+
+constructor TModelChartData.Create(const ALabel: string; AValue: Variant;
+  ABackgroundColor, ABorderColor, APointBackgroundColor, APointBorderColor,
+  APointHoverBackgroundColor, APointHoverBorderColor: EnumColors;
+  AChartType: EnumChartType; APointColor: EnumColors);
+begin
   FLabelName                  := ALabel;
   FValue                      := AValue;
-  FBackgroundColor            := ABackgroundColor;
+  FChartType                  := AChartType;
+  FPointColor                 := APointColor;
   FBorderColor                := ABorderColor;
-  FPointBackgroundColor       := APointBackgroundColor;
+  FBackgroundColor            := ABackgroundColor;
   FPointBorderColor           := APointBorderColor;
-  FPointHoverBackgroundColor  := APointHoverBackgroundColor;
+  FPointBackgroundColor       := APointBackgroundColor;
   FPointHoverBorderColor      := APointHoverBorderColor;
+  FPointHoverBackgroundColor  := APointHoverBackgroundColor;
 end;
 
 destructor TModelChartData.Destroy;
@@ -102,51 +118,75 @@ begin
   FLabelName := AValue;
 end;
 
-class function TModelChartData.New(AParent: iModelChartDataSet; const ALabel: string; AValue: Variant; ABackgroundColor, ABorderColor, APointBackgroundColor, APointBorderColor, APointHoverBackgroundColor, APointHoverBorderColor: TChartColor): iModelChartData;
+class function TModelChartData.New(const ALabel: string; AValue: Variant;
+  ABackgroundColor, ABorderColor, APointBackgroundColor, APointBorderColor,
+  APointHoverBackgroundColor, APointHoverBorderColor: EnumColors;
+  AChartType: EnumChartType; APointColor: EnumColors): iModelChartData;
 begin
-  result := self.Create(AParent, ALabel, AValue, ABackgroundColor, ABorderColor, APointBackgroundColor, APointBorderColor, APointHoverBackgroundColor, APointHoverBorderColor);
+  result := self.Create(ALabel,
+                        AValue,
+                        ABackgroundColor,
+                        ABorderColor,
+                        APointBackgroundColor,
+                        APointBorderColor,
+                        APointHoverBackgroundColor,
+                        APointHoverBorderColor,
+                        AChartType,
+                        APointColor);
 end;
 
-function TModelChartData.PointBackgroundColor(AValue: TChartColor): iModelChartData;
+function TModelChartData.PointBackgroundColor(AValue: EnumColors): iModelChartData;
 begin
   result := Self;
   FPointBackgroundColor := AValue;
 end;
 
-function TModelChartData.PointBackgroundColor: TChartColor;
+function TModelChartData.PointBackgroundColor: EnumColors;
 begin
   Result := FPointBackgroundColor;
 end;
 
-function TModelChartData.PointBorderColor: TChartColor;
+function TModelChartData.PointBorderColor: EnumColors;
 begin
   Result := FPointBorderColor;
 end;
 
-function TModelChartData.PointBorderColor(AValue: TChartColor): iModelChartData;
+function TModelChartData.PointColor: EnumColors;
+begin
+  result := FPointColor;
+end;
+
+function TModelChartData.PointColor(AValue: EnumColors): iModelChartData;
+begin
+  result := Self;
+
+  FPointColor := AValue;
+end;
+
+function TModelChartData.PointBorderColor(AValue: EnumColors): iModelChartData;
 begin
   result := Self;
   FPointBorderColor := AValue;
 end;
 
-function TModelChartData.PointHoverBackgroundColor(AValue: TChartColor): iModelChartData;
+function TModelChartData.PointHoverBackgroundColor(AValue: EnumColors): iModelChartData;
 begin
   result := Self;
   FPointHoverBackgroundColor := AValue;
 end;
 
-function TModelChartData.PointHoverBackgroundColor: TChartColor;
+function TModelChartData.PointHoverBackgroundColor: EnumColors;
 begin
   Result := FPointHoverBackgroundColor;
 end;
 
-function TModelChartData.PointHoverBorderColor(AValue: TChartColor): iModelChartData;
+function TModelChartData.PointHoverBorderColor(AValue: EnumColors): iModelChartData;
 begin
   result := Self;
   FPointHoverBorderColor := AValue;
 end;
 
-function TModelChartData.PointHoverBorderColor: TChartColor;
+function TModelChartData.PointHoverBorderColor: EnumColors;
 begin
   Result := FPointHoverBorderColor;
 end;
