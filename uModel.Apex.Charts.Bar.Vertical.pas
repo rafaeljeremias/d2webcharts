@@ -18,7 +18,8 @@ type
     destructor Destroy; override;
     class function New: iModelChart;
 
-    function AddChartDataSet(ALabel: string; AyAxis: iModelChartDataAxis = nil): iModelChartDataSet;
+    function AddChartDataSet(ALabel: string; AyAxis: iModelChartDataAxis = nil;
+      AWidthBar: Integer = 70): iModelChartDataSet; overload;
     function LabelName: string; overload;
     function LabelName(AValue: string): iModelChart; overload;
     function ClearDataSets: iModelChart;
@@ -38,9 +39,9 @@ uses
   uModel.Charts.DataSet;
 
 function TModelChartApexBarVertical.AddChartDataSet(ALabel: string;
-  AyAxis: iModelChartDataAxis = nil): iModelChartDataSet;
+  AyAxis: iModelChartDataAxis; AWidthBar: Integer): iModelChartDataSet;
 begin
-  Result := TModelChartDataSet.New(Self, ALabel, cfChartApex, AyAxis);
+  Result := TModelChartDataSet.New(Self, ALabel, cfChartApex, AyAxis, AWidthBar);
   FChartDataSets.Add(Result);
 end;
 

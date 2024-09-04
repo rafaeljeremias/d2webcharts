@@ -19,14 +19,19 @@ type
     FChartDataList: TInterfaceList;
     FOpacity: Double;
     FLabel: string;
+    FWidthBar: Integer;
     function GenerateBorderColors: string;
     function GenerateValue: string;
     function GenerateFrameworkChartJS: string;
     function GenerateFrameworkChartApex: string;
   public
-    constructor Create(AParent: iModelChart; ALabel: string; AChartFramework: EnumChartFramework; AyAxis: iModelChartDataAxis = nil);
-    class function New(AParent: iModelChart; ALabel: string; AChartFramework: EnumChartFramework = cfChartJS; AyAxis: iModelChartDataAxis = nil): iModelChartDataSet;
+    constructor Create(AParent: iModelChart; ALabel: string; AChartFramework: EnumChartFramework; AyAxis:
+      iModelChartDataAxis = nil; AWidthBar: Integer = 70);
+    class function New(AParent: iModelChart; ALabel: string; AChartFramework: EnumChartFramework = cfChartJS;
+      AyAxis: iModelChartDataAxis = nil; AWidthBar: Integer = 70): iModelChartDataSet;
     destructor Destroy; override;
+
+    function WidthBar: string;
     function GenerateAxisY: string;
     function GenerateLabels: string;
     function GenerateToolTipY: string;
@@ -90,12 +95,14 @@ begin
 end;
 
 constructor TModelChartDataSet.Create(AParent: iModelChart; ALabel: string;
-  AChartFramework: EnumChartFramework; AyAxis: iModelChartDataAxis);
+  AChartFramework: EnumChartFramework; AyAxis: iModelChartDataAxis;
+  AWidthBar: Integer);
 begin
   FParent := AParent;
   FChartDataList := TInterfaceList.Create;
   FLabel := ALabel;
   FOpacity := 1;
+  FWidthBar := AWidthBar;
   FChartFramework := AChartFramework;
   FyAxis := AyAxis;
 End;
@@ -159,9 +166,10 @@ begin
 end;
 
 class function TModelChartDataSet.New(AParent: iModelChart;
-  ALabel: string; AChartFramework: EnumChartFramework; AyAxis: iModelChartDataAxis): iModelChartDataSet;
+  ALabel: string; AChartFramework: EnumChartFramework;
+  AyAxis: iModelChartDataAxis; AWidthBar: Integer): iModelChartDataSet;
 begin
-  Result := self.Create(AParent, Alabel, AChartFramework, AyAxis);
+  Result := self.Create(AParent, Alabel, AChartFramework, AyAxis, AWidthBar);
 end;
 
 function TModelChartDataSet.Opacity: Double;
@@ -178,6 +186,11 @@ end;
 function TModelChartDataSet.RecordCount: integer;
 begin
   Result := FChartDataList.Count;
+end;
+
+function TModelChartDataSet.WidthBar: string;
+begin
+  result := IntToStr(FWidthBar);
 end;
 
 function TModelChartDataSet.GenerateBackgroundColors: string;
@@ -225,7 +238,7 @@ begin
     DataStr := Format('{ '+
                       '  formatter: function (y) { '+
                       '    if (typeof y !== "undefined") { '+
-                      '      return y.toFixed(0) + "%s"; '+
+                      '      return y.toFixed(2) + "%s"; '+
                       '    } '+
                       '    return y; '+
                       '  } '+

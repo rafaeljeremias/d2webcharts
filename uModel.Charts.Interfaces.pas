@@ -61,6 +61,7 @@ type
 
   iModelChartDataSet = interface
     ['{A1234567-89AB-CDEF-0123-456789ABCDEF}']
+    function WidthBar: string;
     function GenerateAxisY: string;
     function GenerateLabels: string;
     function GenerateToolTipY: string;
@@ -81,7 +82,7 @@ type
 
   iModelChart = interface
     ['{C9BD1133-7A8F-42A9-A2C9-950251F8177A}']
-    function AddChartDataSet(ALabel: string; AyAxis: iModelChartDataAxis = nil): iModelChartDataSet; overload;
+    function AddChartDataSet(ALabel: string; AyAxis: iModelChartDataAxis = nil; AWidthBar: Integer = 70): iModelChartDataSet; overload;
     function LabelName: string; overload;
     function LabelName(AValue: string): iModelChart; overload;
     function ClearDataSets: iModelChart;

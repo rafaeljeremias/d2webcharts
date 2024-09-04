@@ -20,7 +20,8 @@ type
     destructor Destroy; override;
     class function New: iModelChart;
 
-    function AddChartDataSet(ALabel: string; AyAxis: iModelChartDataAxis = nil): iModelChartDataSet;
+    function AddChartDataSet(ALabel: string; AyAxis: iModelChartDataAxis = nil;
+      AWidthBar: Integer = 70): iModelChartDataSet; overload;
     function LabelName: string; overload;
     function LabelName(AValue: string): iModelChart; overload;
     function ClearDataSets: iModelChart;
@@ -39,9 +40,9 @@ uses
   uModel.Charts.DataSet;
 
 function TModelChartApexMixed.AddChartDataSet(ALabel: string;
-  AyAxis: iModelChartDataAxis): iModelChartDataSet;
+  AyAxis: iModelChartDataAxis; AWidthBar: Integer): iModelChartDataSet;
 begin
-  Result := TModelChartDataSet.New(Self, ALabel, cfChartApex, AyAxis);
+  Result := TModelChartDataSet.New(Self, ALabel, cfChartApex, AyAxis, AWidthBar);
   FChartDataSets.Add(Result);
 end;
 
@@ -69,6 +70,7 @@ function TModelChartApexMixed.Generate: string;
 var
   LAxisY: string;
   LChartID: string;
+  LWidthBar: string;
   LLabelsStr: string;
   LBarColors: string;
   LToolTipStr: string;
@@ -83,6 +85,7 @@ begin
   LPointColorStr := EmptyStr;
   LLabelsStr     := (FChartDataSets[0] as iModelChartDataSet).GenerateLabels;
   LChartID       := IntToStr(Random(MaxInt));
+  LWidthBar      := (FChartDataSets[0] as iModelChartDataSet).WidthBar;
 
   for var I := 0 to Pred(FChartDataSets.Count) do
   begin
@@ -174,7 +177,7 @@ begin
     '</script>',
     [LDatasetsStr,
      FHeight,
-     '70%',
+     LWidthBar +'%',
      LLabelsStr,
      ifThen(LAxisY = '', '', 'yaxis: [ '+ LAxisY +' ], '),
      ifThen(LToolTipStr = '', '', 'y: [ '+ LToolTipStr +' ]'),
