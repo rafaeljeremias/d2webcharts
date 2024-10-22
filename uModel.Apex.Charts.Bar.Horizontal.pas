@@ -10,13 +10,14 @@ type
   TModelChartApexBarHorizontal = class(TInterfacedObject, iModelChart)
   strict private
     FChartDataSets: TInterfaceList;
-    FHeight: string;
     FWidth: string;
     FLabel: string;
+    FChartID: string;
+    FHeight: string;
   public
-    constructor Create;
+    constructor Create(AChartID: string = '');
     destructor Destroy; override;
-    class function New: iModelChart;
+    class function New(AChartID: string = ''): IModelChart;
 
     function AddChartDataSet(ALabel: string; AyAxis: iModelChartDataAxis = nil;
       AWidthBar: Integer = 70): iModelChartDataSet; overload;
@@ -51,12 +52,16 @@ begin
   Result := Self;
 end;
 
-constructor TModelChartApexBarHorizontal.Create;
+constructor TModelChartApexBarHorizontal.Create(AChartID: string);
 begin
   inherited Create;
   FChartDataSets := TInterfaceList.Create;
   FHeight := '150px';
   FWidth  := '400px';
+  FChartID := AChartID;
+
+  if FChartID = '' then
+    FChartID := IntToStr(Random(MaxInt));
 end;
 
 destructor TModelChartApexBarHorizontal.Destroy;
@@ -78,7 +83,7 @@ begin
   LBarColors   := EmptyStr;
   LPointColors := EmptyStr;
   LLabelsStr   := (FChartDataSets[0] as iModelChartDataSet).GenerateLabels;
-  LChartID     := IntToStr(Random(MaxInt));
+  LChartID     := FChartID;
 
   for var I := 0 to Pred(FChartDataSets.Count) do
   begin
@@ -167,9 +172,9 @@ begin
   Result := FLabel;
 end;
 
-class function TModelChartApexBarHorizontal.New: iModelChart;
+class function TModelChartApexBarHorizontal.New(AChartID: string): IModelChart;
 begin
-  result := Self.Create;
+  result := Self.Create(AChartID);
 end;
 
 function TModelChartApexBarHorizontal.Width(AValue: string): iModelChart;

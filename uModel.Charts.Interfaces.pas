@@ -68,9 +68,13 @@ type
     function GeneratePointColor: string;
     function GenerateBackgroundColors: string;
     function GeneratePointBackgroundColor: string;
-    function AddChartData(ALabel: string; AValue: Variant; APointBackgroundColor: EnumColors = none): iModelChartDataSet; overload;
-    function AddChartData(ALabel: string; AValue: Variant; AChartType: EnumChartType; APointBackgroundColor: EnumColors = none; APointColor: EnumColors = none): iModelChartDataSet; overload;
-    function AddChartData(ALabel: string; AValue: Variant; ABackgroundColor, ABorderColor: EnumColors; APointBackgroundColor: EnumColors = None; APointBorderColor: EnumColors = None; APointHoverBackgroundColor: EnumColors = None; APointHoverBorderColor: EnumColors = None): iModelChartDataSet; overload;
+    function AddChartData(ALabel: string; AValue: Variant;
+      APointBackgroundColor: EnumColors = none): iModelChartDataSet; overload;
+    function AddChartData(ALabel: string; AValue: Variant; AChartType: EnumChartType;
+      APointBackgroundColor: EnumColors = none; APointColor: EnumColors = none): iModelChartDataSet; overload;
+    function AddChartData(ALabel: string; AValue: Variant; ABackgroundColor, ABorderColor: EnumColors;
+      APointBackgroundColor: EnumColors = None; APointBorderColor: EnumColors = None;
+      APointHoverBackgroundColor: EnumColors = None; APointHoverBorderColor: EnumColors = None): iModelChartDataSet; overload;
     function LabelName: string; overload;
     function LabelName(AValue: string): iModelChartDataSet; overload;
     function Opacity(AValue: Double): iModelChartDataSet; overload;
@@ -101,16 +105,16 @@ type
     function Radar: iModelChart;
   end;
 
-  iModelChartApexBar = interface
-    function Horizontal: iModelChart;
-    function Vertical: iModelChart;
+  IModelChartApexBar = interface
+    function Vertical: IModelChart;
+    function Horizontal(AChartID: string = ''): IModelChart;
   End;
 
   iModelChartApexFactory = interface
     ['{1CAD72D1-4B88-4332-9DE3-9B3B17A1916B}']
     function Bar: iModelChartApexBar;
     function Donut: iModelChart;
-    function Mixed: iModelChart;
+    function Mixed(AChartID: string): iModelChart;
     function Pie: iModelChart;
     function RadialBar: iModelChart;
   End;

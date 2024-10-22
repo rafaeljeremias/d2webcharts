@@ -13,17 +13,17 @@ type
   public
     class function New: IModelChartApexBar;
 
-    function Horizontal: iModelChart;
-    function Vertical: iModelChart;
+    function Vertical: IModelChart;
+    function Horizontal(AChartID: string = ''): IModelChart;
   End;
 
 implementation
 
 { TModelChartApexBar }
 
-function TModelChartApexBar.Horizontal: iModelChart;
+function TModelChartApexBar.Horizontal(AChartID: string): IModelChart;
 begin
-  result := TModelChartApexBarHorizontal.New;
+  result := TModelChartApexBarHorizontal.New(AChartID);
 end;
 
 class function TModelChartApexBar.New: IModelChartApexBar;
