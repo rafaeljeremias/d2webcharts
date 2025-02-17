@@ -16,10 +16,10 @@ type
     class function New: IModelChartApexFactory;
 
     function Bar: IModelChartApexBar;
-    function Donut: iModelChart;
-    function Mixed: iModelChart;
+    function Donut: IModelChart;
+    function Mixed(AChartID: string): IModelChart;
     function Pie: IModelChart;
-    function RadialBar: iModelChart;
+    function RadialBar: IModelChart;
   End;
 
 implementation
@@ -36,9 +36,9 @@ begin
   result := TModelChartApexDonut.New;
 end;
 
-function TModelChartApexFactory.Mixed: iModelChart;
+function TModelChartApexFactory.Mixed(AChartID: string): iModelChart;
 begin
-  result := TModelChartApexMixed.New;
+  result := TModelChartApexMixed.New(AChartID);
 end;
 
 class function TModelChartApexFactory.New: IModelChartApexFactory;

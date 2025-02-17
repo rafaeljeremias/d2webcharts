@@ -10,11 +10,12 @@ uses
   System.Classes;
 
 type
-  TModelChartDataSet = class(TInterfacedObject, iModelChartDataSet)
+  TModelChartDataSet = class(TInterfacedObject, IModelChartDataSet)
   private
     [weak]
-    FParent: iModelChart;
-    FyAxis: iModelChartDataAxis;
+    FParent: IModelChart;
+    FShowDataLabel: Boolean;
+    FyAxis: IModelChartDataAxis;
     FChartFramework: EnumChartFramework;
     FChartDataList: TInterfaceList;
     FOpacity: Double;
@@ -25,15 +26,18 @@ type
     function GenerateFrameworkChartJS: string;
     function GenerateFrameworkChartApex: string;
   public
-    constructor Create(AParent: iModelChart; ALabel: string; AChartFramework: EnumChartFramework; AyAxis:
-      iModelChartDataAxis = nil; AWidthBar: Integer = 70);
+    constructor Create(AParent: IModelChart; ALabel: string; AChartFramework: EnumChartFramework; AyAxis:
+      IModelChartDataAxis = nil; AWidthBar: Integer = 70;
+        AShowDataLabel: Boolean = True);
     class function New(AParent: iModelChart; ALabel: string; AChartFramework: EnumChartFramework = cfChartJS;
-      AyAxis: iModelChartDataAxis = nil; AWidthBar: Integer = 70): iModelChartDataSet;
+      AyAxis: iModelChartDataAxis = nil; AWidthBar: Integer = 70;
+        AShowDataLabel: Boolean = True): IModelChartDataSet;
     destructor Destroy; override;
 
     function WidthBar: string;
     function GenerateAxisY: string;
     function GenerateLabels: string;
+    function ShowDataLabel: Boolean;
     function GenerateToolTipY: string;
     function GeneratePointColor: string;
     function GenerateBackgroundColors: string;
@@ -94,9 +98,9 @@ begin
   FChartDataList.Add(ChartData);
 end;
 
-constructor TModelChartDataSet.Create(AParent: iModelChart; ALabel: string;
-  AChartFramework: EnumChartFramework; AyAxis: iModelChartDataAxis;
-  AWidthBar: Integer);
+constructor TModelChartDataSet.Create(AParent: IModelChart; ALabel: string;
+  AChartFramework: EnumChartFramework; AyAxis: IModelChartDataAxis;
+    AWidthBar: Integer; AShowDataLabel: Boolean);
 begin
   FParent := AParent;
   FChartDataList := TInterfaceList.Create;
@@ -105,6 +109,7 @@ begin
   FWidthBar := AWidthBar;
   FChartFramework := AChartFramework;
   FyAxis := AyAxis;
+  FShowDataLabel := AShowDataLabel;
 End;
 
 destructor TModelChartDataSet.Destroy;
@@ -165,11 +170,12 @@ begin
   Result := FLabel;
 end;
 
-class function TModelChartDataSet.New(AParent: iModelChart;
+class function TModelChartDataSet.New(AParent: IModelChart;
   ALabel: string; AChartFramework: EnumChartFramework;
-  AyAxis: iModelChartDataAxis; AWidthBar: Integer): iModelChartDataSet;
+    AyAxis: iModelChartDataAxis; AWidthBar: Integer; AShowDataLabel: Boolean): IModelChartDataSet;
 begin
-  Result := self.Create(AParent, Alabel, AChartFramework, AyAxis, AWidthBar);
+  Result := self.Create(AParent, Alabel, AChartFramework, AyAxis, AWidthBar,
+    AShowDataLabel);
 end;
 
 function TModelChartDataSet.Opacity: Double;
@@ -186,6 +192,11 @@ end;
 function TModelChartDataSet.RecordCount: integer;
 begin
   Result := FChartDataList.Count;
+end;
+
+function TModelChartDataSet.ShowDataLabel: Boolean;
+begin
+  result := FShowDataLabel;
 end;
 
 function TModelChartDataSet.WidthBar: string;

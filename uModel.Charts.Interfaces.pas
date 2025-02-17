@@ -59,11 +59,12 @@ type
     function PointHoverBorderColor: EnumColors; overload;
   end;
 
-  iModelChartDataSet = interface
+  IModelChartDataSet = interface
     ['{A1234567-89AB-CDEF-0123-456789ABCDEF}']
     function WidthBar: string;
     function GenerateAxisY: string;
     function GenerateLabels: string;
+    function ShowDataLabel: Boolean;
     function GenerateToolTipY: string;
     function GeneratePointColor: string;
     function GenerateBackgroundColors: string;
@@ -84,18 +85,19 @@ type
     function &End: iModelChart;
   end;
 
-  iModelChart = interface
+  IModelChart = interface
     ['{C9BD1133-7A8F-42A9-A2C9-950251F8177A}']
-    function AddChartDataSet(ALabel: string; AyAxis: iModelChartDataAxis = nil; AWidthBar: Integer = 70): iModelChartDataSet; overload;
+    function AddChartDataSet(ALabel: string; AyAxis: IModelChartDataAxis = nil;
+      AWidthBar: Integer = 70; AShowDataLabel: Boolean = True): IModelChartDataSet; overload;
     function LabelName: string; overload;
-    function LabelName(AValue: string): iModelChart; overload;
-    function ClearDataSets: iModelChart;
-    function Height(AValue: string): iModelChart;
-    function Width(AValue: string): iModelChart;
+    function LabelName(AValue: string): IModelChart; overload;
+    function ClearDataSets: IModelChart;
+    function Height(AValue: string): IModelChart;
+    function Width(AValue: string): IModelChart;
     function Generate: string;
   end;
 
-  iModelChartFactory = interface
+  IModelChartFactory = interface
     ['{AABB99D5-B5A5-4F99-B2AF-332E27B66172}']
     function Bar: iModelChart;
     function Line: iModelChart;

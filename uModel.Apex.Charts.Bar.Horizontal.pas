@@ -4,10 +4,12 @@ interface
 
 uses
   System.Classes,
+  System.StrUtils,
+  System.SysUtils,
   uModel.Charts.Interfaces;
 
 type
-  TModelChartApexBarHorizontal = class(TInterfacedObject, iModelChart)
+  TModelChartApexBarHorizontal = class(TInterfacedObject, IModelChart)
   strict private
     FChartDataSets: TInterfaceList;
     FWidth: string;
@@ -19,13 +21,13 @@ type
     destructor Destroy; override;
     class function New(AChartID: string = ''): IModelChart;
 
-    function AddChartDataSet(ALabel: string; AyAxis: iModelChartDataAxis = nil;
-      AWidthBar: Integer = 70): iModelChartDataSet; overload;
+    function AddChartDataSet(ALabel: string; AyAxis: IModelChartDataAxis = nil;
+      AWidthBar: Integer = 70; AShowDataLabel: Boolean = True): IModelChartDataSet; overload;
     function LabelName: string; overload;
-    function LabelName(AValue: string): iModelChart; overload;
-    function ClearDataSets: iModelChart;
-    function Height(AValue: string): iModelChart;
-    function Width(AValue: string): iModelChart;
+    function LabelName(AValue: string): IModelChart; overload;
+    function ClearDataSets: IModelChart;
+    function Height(AValue: string): IModelChart;
+    function Width(AValue: string): IModelChart;
     function Generate: string;
   end;
 
@@ -34,15 +36,16 @@ implementation
 { TModelChartApexBarHorizontal }
 
 uses
-  System.SysUtils,
   uModel.Charts.Data,
   uModel.Charts.Utils,
   uModel.Charts.DataSet;
 
 function TModelChartApexBarHorizontal.AddChartDataSet(ALabel: string;
-  AyAxis: iModelChartDataAxis; AWidthBar: Integer): iModelChartDataSet;
+  AyAxis: iModelChartDataAxis; AWidthBar: Integer; AShowDataLabel: Boolean): IModelChartDataSet;
 begin
-  Result := TModelChartDataSet.New(Self, ALabel, cfChartApex, AyAxis, AWidthBar);
+  Result := TModelChartDataSet.New(Self, ALabel, cfChartApex, AyAxis, AWidthBar,
+    AShowDataLabel);
+
   FChartDataSets.Add(Result);
 end;
 
@@ -77,7 +80,7 @@ var
   LBarColors: string;
   LDatasetsStr: string;
   LPointColors: string;
-  LChartDataSet: iModelChartDataSet;
+  LChartDataSet: IModelChartDataSet;
 begin
   LDatasetsStr := EmptyStr;
   LBarColors   := EmptyStr;
@@ -105,7 +108,8 @@ begin
     '<div id="chart'+ LChartID +'"> '+
     '  <div id="timeline-chart'+ LChartID +'"></div> '+
     '</div> '+
-    '<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script> '+
+    '/*IMPORT_APEX*/ '+
+//    '<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script> '+
     '<script> '+
     '  var options = { '+
     '    series: [ %s ], '+
@@ -122,7 +126,7 @@ begin
     '        } '+
     '      }, '+
     '      dataLabels: { '+
-    '        enabled: true, '+
+    '        enabled: %s, '+
     '        offsetX: 80, '+
     '        offsetY: -2, '+
     '        style: { '+
@@ -152,7 +156,13 @@ begin
     '    }; '+
     '  var chart = new ApexCharts(document.querySelector("#chart'+ LChartID +'"), options); '+
     '  chart.render(); '+
-    '</script>', [LDatasetsStr, FHeight, LPointColors, LLabelsStr, LBarColors]);
+    '</script>',
+    [LDatasetsStr,
+     FHeight,
+     ifThen(LChartDataSet.ShowDataLabel, 'true', 'false'),
+     LPointColors,
+     LLabelsStr,
+     LBarColors]);
 end;
 
 function TModelChartApexBarHorizontal.Height(AValue: string): iModelChart;

@@ -9,7 +9,7 @@ uses
   System.Classes;
 
 type
-  TModelChartLine = class(TInterfacedObject, iModelChart)
+  TModelChartLine = class(TInterfacedObject, IModelChart)
   private
     FChartDataSets: TInterfaceList;
     FHeight: string;
@@ -18,9 +18,9 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    class function New: iModelChart;
-    function AddChartDataSet(ALabel: string; AyAxis: iModelChartDataAxis = nil;
-      AWidthBar: Integer = 70): iModelChartDataSet; overload;
+    class function New: IModelChart;
+    function AddChartDataSet(ALabel: string; AyAxis: IModelChartDataAxis = nil;
+      AWidthBar: Integer = 70; AShowDataLabel: Boolean = true): IModelChartDataSet; overload;
     function LabelName: string; overload;
     function LabelName(AValue: string): iModelChart; overload;
     function ClearDataSets: iModelChart;
@@ -40,9 +40,11 @@ uses
 { TModelChartLine }
 
 function TModelChartLine.AddChartDataSet(ALabel: string;
-  AyAxis: iModelChartDataAxis; AWidthBar: Integer): iModelChartDataSet;
+  AyAxis: IModelChartDataAxis; AWidthBar: Integer; AShowDataLabel: Boolean): IModelChartDataSet;
 begin
-  Result := TModelChartDataSet.New(Self, ALabel, cfChartJS, AyAxis, AWidthBar);
+  Result := TModelChartDataSet.New(Self, ALabel, cfChartJS, AyAxis, AWidthBar,
+    AShowDataLabel);
+
   FChartDataSets.Add(Result);
 end;
 

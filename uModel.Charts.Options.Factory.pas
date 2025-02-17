@@ -8,24 +8,24 @@ uses
   uModel.Charts.Interfaces;
 
 type
-  TModelChartOptionsFactory = class(TInterfacedObject, iModelChartOptionsFactory)
+  TModelChartOptionsFactory = class(TInterfacedObject, IModelChartOptionsFactory)
   public
     class function New: IModelChartOptionsFactory;
 
-    function ChartJS: iModelChartFactory;
-    function ChartApex: iModelChartApexFactory;
+    function ChartJS: IModelChartFactory;
+    function ChartApex: IModelChartApexFactory;
   End;
 
 implementation
 
 { TModelChartOptionsFactory }
 
-function TModelChartOptionsFactory.ChartApex: iModelChartApexFactory;
+function TModelChartOptionsFactory.ChartApex: IModelChartApexFactory;
 begin
   result := TModelChartApexFactory.New;
 end;
 
-function TModelChartOptionsFactory.ChartJS: iModelChartFactory;
+function TModelChartOptionsFactory.ChartJS: IModelChartFactory;
 begin
   result := TModelChartFactory.New;
 end;

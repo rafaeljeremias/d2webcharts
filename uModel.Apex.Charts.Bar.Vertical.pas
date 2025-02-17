@@ -7,7 +7,7 @@ uses
   uModel.Charts.Interfaces;
 
 type
-  TModelChartApexBarVertical = class(TInterfacedObject, iModelChart)
+  TModelChartApexBarVertical = class(TInterfacedObject, IModelChart)
   strict private
     FChartDataSets: TInterfaceList;
     FHeight: string;
@@ -18,8 +18,8 @@ type
     destructor Destroy; override;
     class function New: iModelChart;
 
-    function AddChartDataSet(ALabel: string; AyAxis: iModelChartDataAxis = nil;
-      AWidthBar: Integer = 70): iModelChartDataSet; overload;
+    function AddChartDataSet(ALabel: string; AyAxis: IModelChartDataAxis = nil;
+      AWidthBar: Integer = 70; AShowDataLabel: Boolean = True): IModelChartDataSet; overload;
     function LabelName: string; overload;
     function LabelName(AValue: string): iModelChart; overload;
     function ClearDataSets: iModelChart;
@@ -39,9 +39,10 @@ uses
   uModel.Charts.DataSet;
 
 function TModelChartApexBarVertical.AddChartDataSet(ALabel: string;
-  AyAxis: iModelChartDataAxis; AWidthBar: Integer): iModelChartDataSet;
+  AyAxis: IModelChartDataAxis; AWidthBar: Integer; AShowDataLabel: Boolean): IModelChartDataSet;
 begin
-  Result := TModelChartDataSet.New(Self, ALabel, cfChartApex, AyAxis, AWidthBar);
+  Result := TModelChartDataSet.New(Self, ALabel, cfChartApex, AyAxis, AWidthBar,
+    AShowDataLabel);
   FChartDataSets.Add(Result);
 end;
 
@@ -96,7 +97,8 @@ begin
     '<div id="chart'+ LChartID +'"> '+
     '  <div id="timeline-chart'+ LChartID +'"></div> '+
     '</div> '+
-    '<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script> '+
+    '/*IMPORT_APEX*/ '+
+//    '<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script> '+
     '<script> '+
     '  var options = { '+
     '    series: [ %s ], '+

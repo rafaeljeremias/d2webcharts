@@ -9,24 +9,25 @@ uses
   uModel.Charts.Interfaces;
 
 type
-  TModelChartApexMixed = class(TInterfacedObject, iModelChart)
+  TModelChartApexMixed = class(TInterfacedObject, IModelChart)
   strict private
     FChartDataSets: TInterfaceList;
     FHeight: string;
     FWidth: string;
     FLabel: string;
+    FChartID: string;
   public
-    constructor Create;
+    constructor Create(AChartID: string);
     destructor Destroy; override;
-    class function New: iModelChart;
+    class function New(AChartID: string): IModelChart;
 
-    function AddChartDataSet(ALabel: string; AyAxis: iModelChartDataAxis = nil;
-      AWidthBar: Integer = 70): iModelChartDataSet; overload;
+    function AddChartDataSet(ALabel: string; AyAxis: IModelChartDataAxis = nil;
+      AWidthBar: Integer = 70; AShowDataLabel: Boolean = true): IModelChartDataSet; overload;
     function LabelName: string; overload;
-    function LabelName(AValue: string): iModelChart; overload;
-    function ClearDataSets: iModelChart;
-    function Height(AValue: string): iModelChart;
-    function Width(AValue: string): iModelChart;
+    function LabelName(AValue: string): IModelChart; overload;
+    function ClearDataSets: IModelChart;
+    function Height(AValue: string): IModelChart;
+    function Width(AValue: string): IModelChart;
     function Generate: string;
   end;
 
@@ -40,24 +41,27 @@ uses
   uModel.Charts.DataSet;
 
 function TModelChartApexMixed.AddChartDataSet(ALabel: string;
-  AyAxis: iModelChartDataAxis; AWidthBar: Integer): iModelChartDataSet;
+  AyAxis: IModelChartDataAxis; AWidthBar: Integer; AShowDataLabel: Boolean): IModelChartDataSet;
 begin
-  Result := TModelChartDataSet.New(Self, ALabel, cfChartApex, AyAxis, AWidthBar);
+  Result := TModelChartDataSet.New(Self, ALabel, cfChartApex, AyAxis, AWidthBar,
+    AShowDataLabel);
+
   FChartDataSets.Add(Result);
 end;
 
-function TModelChartApexMixed.ClearDataSets: iModelChart;
+function TModelChartApexMixed.ClearDataSets: IModelChart;
 begin
   FChartDataSets.Clear;
   Result := Self;
 end;
 
-constructor TModelChartApexMixed.Create;
+constructor TModelChartApexMixed.Create(AChartID: string);
 begin
   inherited Create;
   FChartDataSets := TInterfaceList.Create;
   FHeight := '150px';
   FWidth  := '400px';
+  FChartID := AChartID;
 end;
 
 destructor TModelChartApexMixed.Destroy;
@@ -76,20 +80,25 @@ var
   LToolTipStr: string;
   LDatasetsStr: string;
   LPointColorStr: string;
-  LChartDataSet: iModelChartDataSet;
+  LChartDataSet: IModelChartDataSet;
 begin
   LAxisY         := EmptyStr;
   LDatasetsStr   := EmptyStr;
   LBarColors     := EmptyStr;
   LToolTipStr    := EmptyStr;
   LPointColorStr := EmptyStr;
-  LLabelsStr     := (FChartDataSets[0] as iModelChartDataSet).GenerateLabels;
-  LChartID       := IntToStr(Random(MaxInt));
-  LWidthBar      := (FChartDataSets[0] as iModelChartDataSet).WidthBar;
+  LLabelsStr     := (FChartDataSets[0] as IModelChartDataSet).GenerateLabels;
+
+  if FChartID <> '' then
+    LChartID := FChartID
+  else
+    LChartID := IntToStr(Random(MaxInt));
+
+  LWidthBar := (FChartDataSets[0] as iModelChartDataSet).WidthBar;
 
   for var I := 0 to Pred(FChartDataSets.Count) do
   begin
-    LChartDataSet := (FChartDataSets[i] as iModelChartDataSet);
+    LChartDataSet := (FChartDataSets[i] as IModelChartDataSet);
 
     if I > 0 then
     begin
@@ -115,7 +124,8 @@ begin
     '<div id="chart'+ LChartID +'"> '+
     '  <div id="timeline-chart'+ LChartID +'"></div> '+
     '</div> '+
-    '<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script> '+
+    '/*IMPORT_APEX*/ '+
+//    '<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script> '+
     '<script> '+
     '  var options = { '+
     '    series: [ %s ], '+
@@ -202,9 +212,9 @@ begin
   Result := FLabel;
 end;
 
-class function TModelChartApexMixed.New: iModelChart;
+class function TModelChartApexMixed.New(AChartID: string): iModelChart;
 begin
-  result := Self.Create;
+  result := Self.Create(AChartID);
 end;
 
 function TModelChartApexMixed.Width(AValue: string): iModelChart;
